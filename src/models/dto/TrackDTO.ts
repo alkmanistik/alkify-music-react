@@ -8,7 +8,7 @@ export interface TrackDTO {
     durationSeconds: number;
     audioUrl: string;
     releaseDate: number;
-    artists: Array<ArtistMinimalDTO>;
+    artists: ArtistMinimalDTO[];
     album: AlbumMinimalDTO;
     isExplicit: boolean;
     likeCount: number;

@@ -7,6 +7,6 @@ export interface AlbumDTO {
     description: string;
     imageUrl: string;
     releaseDate: number;
-    artists: Array<ArtistMinimalDTO>;
-    tracks: Array<TrackMinimalDTO>;
+    artists: ArtistMinimalDTO[];
+    tracks: TrackMinimalDTO[];
 }

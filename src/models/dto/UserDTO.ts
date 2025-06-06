@@ -4,5 +4,5 @@ export interface UserDTO {
     id: number;
     username: string;
     email: string;
-    managedArtists: Array<ArtistDTO>;
+    managedArtists: ArtistDTO[];
 }
