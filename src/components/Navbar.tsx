@@ -42,7 +42,7 @@ export default function Navbar() {
             <div className="flex items-center space-x-6">
                 {/* Логотип и ссылка на главную */}
                 <Link to="/" className="flex items-center">
-                    <div className="w-10 h-10 bg-indigo-600 rounded-md flex items-center justify-center mr-2 p-0.5">
+                    <div className="w-10 h-10 bg-indigo-700 rounded-md flex items-center justify-center mr-2 p-0.5">
                         <img src="/musicIcon.svg" />
                     </div>
                     <span className="font-bold text-xl hidden sm:inline">

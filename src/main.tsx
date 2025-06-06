@@ -11,7 +11,9 @@ const LoginFormWithRouter = () => {
 
     return (
         <LoginForm
-            onSuccess={() => navigate("/")}
+            onSuccess={() => {
+                window.location.href = "/";
+            }}
             switchToRegister={() => navigate("/register")}
         />
     );
@@ -22,7 +24,9 @@ const RegisterFormWithRouter = () => {
 
     return (
         <RegisterForm
-            onSuccess={() => navigate("/")}
+            onSuccess={() => {
+                window.location.href = "/";
+            }}
             switchToLogin={() => navigate("/login")}
         />
     );
