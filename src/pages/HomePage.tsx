@@ -170,9 +170,15 @@ export default function HomePage() {
                                 className="flex items-center p-3 hover:bg-gray-700 transition border-b border-gray-700 last:border-0"
                             >
                                 <img
-                                    src={track.album.imageUrl || "/default.jpg"}
+                                    src={
+                                        track.album.imageUrl
+                                            ? import.meta.env.VITE_API_URL +
+                                              "files/images/" +
+                                              track.album.imageUrl
+                                            : "/default.jpg"
+                                    }
                                     alt={track.album.title}
-                                    className="rounded w-40 h-40 object-cover group-hover:opacity-80 transition"
+                                    className="rounded w-16 h-16 object-cover group-hover:opacity-80 transition"
                                 />
                                 <div className="text-gray-400 w-8 text-center">
                                     {index + 1}
@@ -186,9 +192,18 @@ export default function HomePage() {
                                         {track.album?.title}
                                     </p>
                                 </div>
-                                <div className="text-gray-400 text-sm">
+                                {/* <div className="text-gray-400 text-sm">
                                     {formatDuration(track.durationSeconds)}
-                                </div>
+                                </div> */}
+                                <audio
+                                    src={
+                                        import.meta.env.VITE_API_URL +
+                                        "files/audios/" +
+                                        track.audioUrl
+                                    }
+                                    controls
+                                    className="w-64"
+                                />
                             </div>
                         ))}
                     </div>

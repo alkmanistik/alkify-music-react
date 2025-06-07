@@ -124,14 +124,14 @@ export default function AlbumPage() {
                         <p className="text-gray-400 italic">No tracks yet</p>
                     ) : (
                         <div className="space-y-2">
-                            {album.tracks.map((track) => (
+                            {album.tracks.map((track, index) => (
                                 <div
                                     key={track.id}
                                     className="flex items-center justify-between p-3 hover:bg-gray-700 rounded transition"
                                 >
                                     <div className="flex items-center gap-4">
                                         <span className="text-gray-400 w-8 text-right">
-                                            {track.id}
+                                            {index + 1}
                                         </span>
                                         <div>
                                             <h3 className="font-medium text-white">
@@ -142,16 +142,20 @@ export default function AlbumPage() {
                                                     </span>
                                                 )}
                                             </h3>
-                                            <p className="text-sm text-gray-400">
+                                            {/* <p className="text-sm text-gray-400">
                                                 {formatDuration(
                                                     track.durationSeconds
                                                 )}
-                                            </p>
+                                            </p> */}
                                         </div>
                                     </div>
 
                                     <audio
-                                        src={track.audioUrl}
+                                        src={
+                                            import.meta.env.VITE_API_URL +
+                                            "files/audios/" +
+                                            track.audioUrl
+                                        }
                                         controls
                                         className="w-64"
                                     />

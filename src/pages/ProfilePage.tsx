@@ -75,7 +75,7 @@ export default function ProfilePage() {
                         <div className="bg-gray-800 rounded-lg p-6">
                             <div className="flex flex-col items-center">
                                 {/* Аватарка (у всех одинаковая) */}
-                                <div className="w-32 h-32 rounded-full bg-indigo-600 flex items-center justify-center mb-4">
+                                <div className="w-29 h-29 rounded-full bg-indigo-600 flex items-center justify-center mb-4">
                                     <span className="text-4xl font-bold text-white">
                                         {user.username.charAt(0).toUpperCase()}
                                     </span>
@@ -182,7 +182,7 @@ export default function ProfilePage() {
                                 </h2>
                                 <button
                                     onClick={handleCreateArtist}
-                                    className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded flex items-center"
+                                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded flex items-center"
                                 >
                                     <span className="mr-2">+</span> Create
                                     Artist

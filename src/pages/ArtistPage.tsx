@@ -123,7 +123,7 @@ export default function ArtistPage() {
                             {artist.albums.map((album) => (
                                 <div
                                     key={album.id}
-                                    className="bg-gray-800 rounded-lg overflow-hidden hover:bg-gray-700 transition cursor-pointer"
+                                    className="bg-gray-800 w-64 rounded-lg overflow-hidden hover:bg-gray-700 transition cursor-pointer"
                                     onClick={() =>
                                         navigate(`/albums/${album.id}`)
                                     }
@@ -192,9 +192,18 @@ export default function ArtistPage() {
                                             {/* {track.albums?.title || 'Single'} */}
                                         </p>
                                     </div>
-                                    <div className="text-gray-400 text-sm">
+                                    {/* <div className="text-gray-400 text-sm">
                                         {formatDuration(track.durationSeconds)}
-                                    </div>
+                                    </div> */}
+                                    <audio
+                                        src={
+                                            import.meta.env.VITE_API_URL +
+                                            "files/audios/" +
+                                            track.audioUrl
+                                        }
+                                        controls
+                                        className="w-64"
+                                    />
                                 </div>
                             ))}
                         </div>
