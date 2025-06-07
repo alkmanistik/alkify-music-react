@@ -12,7 +12,7 @@ export default function Navbar() {
     useEffect(() => {
         const fetchUser = async () => {
             try {
-                const response = await apiClient.get<UserDTO>("/users/me");
+                const response = await apiClient.get<UserDTO>("users/me");
                 setUser(response.data);
             } catch (error) {
                 setUser(null);
@@ -90,16 +90,9 @@ export default function Navbar() {
                 ) : user ? (
                     <div className="flex items-center space-x-3">
                         <Link
-                            to={`/profile/${user.id}`}
+                            to={`/profile`}
                             className="flex items-center space-x-2 hover:text-gray-300"
                         >
-                            {user.managedArtists?.length > 0 && (
-                                <img
-                                    src={user.managedArtists[0].imageUrl}
-                                    alt="Profile"
-                                    className="w-8 h-8 rounded-full object-cover"
-                                />
-                            )}
                             <span className="hidden md:inline">
                                 {user.username}
                             </span>

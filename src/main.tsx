@@ -1,10 +1,12 @@
 import { createRoot } from "react-dom/client";
 import "./index.css";
-import App from "./App";
 import { BrowserRouter, Route, Routes, useNavigate } from "react-router";
 import Navbar from "./components/Navbar";
 import RegisterForm from "./components/forms/RegisterForm";
 import LoginForm from "./components/forms/LoginForm";
+import HomePage from "./pages/HomePage";
+import ProfilePage from "./pages/ProfilePage";
+import { ArtistForm } from "./components/forms/ArtistForm";
 
 const LoginFormWithRouter = () => {
     const navigate = useNavigate();
@@ -36,9 +38,13 @@ createRoot(document.getElementById("root")!).render(
     <BrowserRouter>
         <Navbar />
         <Routes>
-            <Route path="/" element={<App />} />
+            <Route path="/" element={<HomePage />} />
+            <Route path="/profile" element={<ProfilePage />} />
             <Route path="/login" element={<LoginFormWithRouter />} />
             <Route path="/register" element={<RegisterFormWithRouter />} />
+            <Route path="/artists/create" element={<ArtistForm />}>
+                <Route path=":artistId" element={<ArtistForm />} />
+            </Route>
         </Routes>
     </BrowserRouter>
 );
