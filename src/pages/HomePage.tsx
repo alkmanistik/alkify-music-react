@@ -68,7 +68,7 @@ export default function HomePage() {
                         <div className="flex space-x-6 overflow-x-auto pb-4 scrollbar-hide">
                             {artists.map((artist) => (
                                 <Link
-                                    to={`/artist/${artist.id}`}
+                                    to={`/artists/${artist.id}`}
                                     key={artist.id}
                                     className="flex-shrink-0 w-24 text-center group"
                                 >

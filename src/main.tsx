@@ -7,6 +7,7 @@ import LoginForm from "./components/forms/LoginForm";
 import HomePage from "./pages/HomePage";
 import ProfilePage from "./pages/ProfilePage";
 import { ArtistForm } from "./components/forms/ArtistForm";
+import ArtistPage from "./pages/ArtistPage";
 
 const LoginFormWithRouter = () => {
     const navigate = useNavigate();
@@ -42,8 +43,11 @@ createRoot(document.getElementById("root")!).render(
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/login" element={<LoginFormWithRouter />} />
             <Route path="/register" element={<RegisterFormWithRouter />} />
-            <Route path="/artists/create" element={<ArtistForm />}>
-                <Route path=":artistId" element={<ArtistForm />} />
+            <Route path="/artists">
+                <Route path="create" element={<ArtistForm />}>
+                    <Route path=":artistId" element={<ArtistForm />} />
+                </Route>
+                <Route path=":artistId" element={<ArtistPage />} />
             </Route>
         </Routes>
     </BrowserRouter>
