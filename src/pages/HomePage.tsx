@@ -126,7 +126,7 @@ export default function HomePage() {
                                         src={
                                             album.imageUrl
                                                 ? import.meta.env.VITE_API_URL +
-                                                  "/files/images/" +
+                                                  "files/images/" +
                                                   album.imageUrl
                                                 : "/default.jpg"
                                         }

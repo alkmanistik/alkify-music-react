@@ -1,56 +1,54 @@
 import { useState, useEffect } from "react";
-import type { ArtistRequest } from "../../models/requests/ArtistRequest";
 import { useNavigate, useParams } from "react-router";
-import type { ArtistDTO } from "../../models/dto/ArtistDTO";
+import type { AlbumRequest } from "../../models/requests/AlbumRequest";
 import apiClient from "../../api/client";
+import type { AlbumDTO } from "../../models/dto/AlbumDTO";
 
-export const ArtistForm = () => {
-    const { artistId } = useParams();
+export default function AlbumForm() {
+    const { artistId, albumId } = useParams();
     const navigate = useNavigate();
-
-    const [artistData, setArtistData] = useState<ArtistRequest>({
-        artistName: "",
+    const [formData, setFormData] = useState<AlbumRequest>({
+        title: "",
         description: "",
-        albums: null!,
+        tracks: null!,
     });
-
     const [imageFile, setImageFile] = useState<File | null>(null);
     const [imagePreview, setImagePreview] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState("");
 
-    // Загрузка данных артиста при наличии artistId
     useEffect(() => {
-        if (artistId) {
-            const fetchArtist = async () => {
-                try {
-                    const response = await apiClient.get<ArtistDTO>(
-                        `artists/${artistId}`
-                    );
-                    setArtistData({
-                        artistName: response.data.artistName,
-                        description: response.data.description,
-                        albums: null!,
-                    });
-                    if (response.data.imageUrl) {
-                        setImagePreview(
-                            `${import.meta.env.VITE_API_URL}files/images/${
-                                response.data.imageUrl
-                            }`
-                        );
-                    }
-                } catch (error) {
-                    console.error("Ошибка при загрузке артиста:", error);
-                }
-            };
-            fetchArtist();
+        if (albumId) {
+            fetchAlbum();
         }
-    }, [artistId]);
+    }, [albumId]);
+
+    const fetchAlbum = async () => {
+        try {
+            const response = await apiClient.get<AlbumDTO>(
+                `/albums/${albumId}`
+            );
+            const { title, description, imageUrl } = response.data;
+            setFormData({
+                title,
+                description,
+                tracks: null!,
+            });
+            if (imageUrl) {
+                setImagePreview(
+                    `${import.meta.env.VITE_API_URL}files/images/${imageUrl}`
+                );
+            }
+        } catch (error) {
+            setError("Failed to load album data");
+        }
+    };
 
     const handleInputChange = (
         e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
     ) => {
         const { name, value } = e.target;
-        setArtistData({ ...artistData, [name]: value });
+        setFormData((prev) => ({ ...prev, [name]: value }));
     };
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -58,7 +56,6 @@ export const ArtistForm = () => {
             const file = e.target.files[0];
             setImageFile(file);
 
-            // Создаем превью изображения
             const reader = new FileReader();
             reader.onloadend = () => {
                 setImagePreview(reader.result as string);
@@ -70,34 +67,34 @@ export const ArtistForm = () => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsLoading(true);
+        setError("");
 
         try {
-            const formData = new FormData();
-            formData.append(
-                "artistRequest",
-                new Blob([JSON.stringify(artistData)], {
+            const formDataToSend = new FormData();
+            formDataToSend.append(
+                "request",
+                new Blob([JSON.stringify(formData)], {
                     type: "application/json",
                 })
             );
 
             if (imageFile) {
-                formData.append("image", imageFile);
+                formDataToSend.append("image", imageFile);
             }
 
-            const url = artistId ? `/artists/${artistId}` : "/artists";
-            const method = artistId ? "put" : "post";
+            const url = albumId ? `albums/${albumId}` : `albums/${artistId}`;
+            const method = albumId ? "put" : "post";
 
-            const response = await apiClient({
+            await apiClient({
                 method,
                 url,
-                data: formData,
+                data: formDataToSend,
                 headers: { "Content-Type": "multipart/form-data" },
             });
 
-            console.log("Успешно:", response.data);
-            navigate("../../profile");
+            navigate(`/artists/${artistId}`);
         } catch (error) {
-            console.error("Ошибка при отправке формы:", error);
+            setError("Failed to save album");
         } finally {
             setIsLoading(false);
         }
@@ -109,56 +106,33 @@ export const ArtistForm = () => {
                 <div className="bg-white rounded-3xl shadow-xl overflow-hidden">
                     <div className="bg-gradient-to-r from-blue-600 to-indigo-700 px-8 py-6">
                         <h1 className="text-3xl font-extrabold text-white text-center">
-                            {artistId
-                                ? "Редактировать артиста"
-                                : "Создать нового артиста"}
+                            {albumId ? "Edit Album" : "Create New Album"}
                         </h1>
                         <p className="text-blue-100 text-center mt-2">
-                            {artistId
-                                ? "Обновите информацию об артисте"
-                                : "Заполните данные нового артиста"}
+                            {albumId
+                                ? "Update album information"
+                                : "Fill in the album details"}
                         </p>
                     </div>
 
                     <div className="p-8">
+                        {error && (
+                            <div className="mb-6 bg-red-100 border-l-4 border-red-500 text-red-700 p-4">
+                                <p>{error}</p>
+                            </div>
+                        )}
+
                         <form onSubmit={handleSubmit}>
                             <div className="mb-6">
                                 <label className="block text-gray-700 font-medium mb-2">
-                                    Имя артиста
-                                </label>
-                                <input
-                                    type="text"
-                                    name="artistName"
-                                    value={artistData.artistName}
-                                    onChange={handleInputChange}
-                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                    required
-                                />
-                            </div>
-
-                            <div className="mb-6">
-                                <label className="block text-gray-700 font-medium mb-2">
-                                    Описание
-                                </label>
-                                <textarea
-                                    name="description"
-                                    value={artistData.description || ""}
-                                    onChange={handleInputChange}
-                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                    rows={4}
-                                />
-                            </div>
-
-                            <div className="mb-6">
-                                <label className="block text-gray-700 font-medium mb-2">
-                                    Изображение артиста
+                                    Album Cover
                                 </label>
                                 {imagePreview && (
                                     <div className="mb-4">
                                         <img
                                             src={imagePreview}
-                                            alt="Превью изображения"
-                                            className="w-32 h-32 object-cover rounded-full border-2 border-blue-200"
+                                            alt="Album cover preview"
+                                            className="w-32 h-32 object-cover rounded-lg border-2 border-blue-200"
                                         />
                                     </div>
                                 )}
@@ -172,6 +146,33 @@ export const ArtistForm = () => {
                                     file:text-sm file:font-semibold
                                     file:bg-blue-50 file:text-blue-700
                                     hover:file:bg-blue-100"
+                                />
+                            </div>
+
+                            <div className="mb-6">
+                                <label className="block text-gray-700 font-medium mb-2">
+                                    Title*
+                                </label>
+                                <input
+                                    type="text"
+                                    name="title"
+                                    value={formData.title}
+                                    onChange={handleInputChange}
+                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                    required
+                                />
+                            </div>
+
+                            <div className="mb-6">
+                                <label className="block text-gray-700 font-medium mb-2">
+                                    Description
+                                </label>
+                                <textarea
+                                    name="description"
+                                    value={formData.description || ""}
+                                    onChange={handleInputChange}
+                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                    rows={4}
                                 />
                             </div>
 
@@ -203,12 +204,12 @@ export const ArtistForm = () => {
                                                     d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                                                 ></path>
                                             </svg>
-                                            Сохранение...
+                                            Saving...
                                         </span>
-                                    ) : artistId ? (
-                                        "Обновить артиста"
+                                    ) : albumId ? (
+                                        "Update Album"
                                     ) : (
-                                        "Создать артиста"
+                                        "Create Album"
                                     )}
                                 </button>
                             </div>
@@ -218,4 +219,4 @@ export const ArtistForm = () => {
             </div>
         </div>
     );
-};
+}

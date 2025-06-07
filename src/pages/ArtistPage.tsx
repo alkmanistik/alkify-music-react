@@ -129,7 +129,13 @@ export default function ArtistPage() {
                                     }
                                 >
                                     <img
-                                        src={album.imageUrl || "/default.jpg"}
+                                        src={
+                                            album.imageUrl
+                                                ? import.meta.env.VITE_API_URL +
+                                                  "files/images/" +
+                                                  album.imageUrl
+                                                : "/default.jpg"
+                                        }
                                         alt={album.title}
                                         className="w-full aspect-square object-cover"
                                     />
