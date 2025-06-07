@@ -118,7 +118,7 @@ export default function HomePage() {
                         <div className="flex space-x-6 overflow-x-auto pb-4 scrollbar-hide">
                             {albums.map((album) => (
                                 <Link
-                                    to={`/album/${album.id}`}
+                                    to={`/albums/${album.id}`}
                                     key={album.id}
                                     className="flex-shrink-0 w-40 group"
                                 >

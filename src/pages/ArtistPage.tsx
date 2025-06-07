@@ -68,7 +68,7 @@ export default function ArtistPage() {
                                         : "/default.jpg"
                                 }
                                 alt={artist.artistName}
-                                className="rounded-full w-full h-full object-cover border-4 border-black"
+                                className="rounded-full w-full h-full object-cover"
                             />
                         </div>
 
@@ -86,7 +86,7 @@ export default function ArtistPage() {
                                 {isOwner && (
                                     <button
                                         onClick={handleEditArtist}
-                                        className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded"
+                                        className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
                                     >
                                         Edit Artist
                                     </button>
@@ -111,7 +111,7 @@ export default function ArtistPage() {
                         {isOwner && (
                             <button
                                 onClick={handleCreateAlbum}
-                                className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded flex items-center"
+                                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded flex items-center"
                             >
                                 <span className="mr-2">+</span> Create Album
                             </button>

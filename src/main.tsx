@@ -9,6 +9,7 @@ import ProfilePage from "./pages/ProfilePage";
 import { ArtistForm } from "./components/forms/ArtistForm";
 import ArtistPage from "./pages/ArtistPage";
 import AlbumForm from "./components/forms/AlbumForm";
+import AlbumPage from "./pages/AlbumPage";
 
 const LoginFormWithRouter = () => {
     const navigate = useNavigate();
@@ -54,6 +55,11 @@ createRoot(document.getElementById("root")!).render(
                 <Route path="create" element={<AlbumForm />} />
                 <Route path="create/:albumId" element={<AlbumForm />} />
             </Route>
+            <Route path="/albums/:albumId" element={<AlbumPage />} />
+            {/* <Route
+                path="/albums/:albumId/tracks/create"
+                element={<TrackForm />}
+            /> */}
         </Routes>
     </BrowserRouter>
 );
