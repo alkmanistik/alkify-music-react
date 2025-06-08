@@ -169,6 +169,9 @@ export default function HomePage() {
                                 key={track.id}
                                 className="flex items-center p-3 hover:bg-gray-700 transition border-b border-gray-700 last:border-0"
                             >
+                                <div className="text-gray-400 w-8 text-center mr-4">
+                                    {index + 1}
+                                </div>
                                 <img
                                     src={
                                         track.album.imageUrl
@@ -180,9 +183,6 @@ export default function HomePage() {
                                     alt={track.album.title}
                                     className="rounded w-16 h-16 object-cover group-hover:opacity-80 transition"
                                 />
-                                <div className="text-gray-400 w-8 text-center">
-                                    {index + 1}
-                                </div>
                                 <div className="flex-1 min-w-0 ml-4">
                                     <p className="font-medium text-white truncate">
                                         {track.title}
@@ -192,9 +192,6 @@ export default function HomePage() {
                                         {track.album?.title}
                                     </p>
                                 </div>
-                                {/* <div className="text-gray-400 text-sm">
-                                    {formatDuration(track.durationSeconds)}
-                                </div> */}
                                 <audio
                                     src={
                                         import.meta.env.VITE_API_URL +
@@ -211,11 +208,4 @@ export default function HomePage() {
             </section>
         </div>
     );
-}
-
-// Вспомогательная функция для форматирования времени
-function formatDuration(seconds: number): string {
-    const mins = Math.floor(seconds / 60);
-    const secs = Math.floor(seconds % 60);
-    return `${mins}:${secs < 10 ? "0" : ""}${secs}`;
 }

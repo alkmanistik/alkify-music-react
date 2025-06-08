@@ -1,5 +1,14 @@
 @import "tailwindcss";
 
+html {
+    scrollbar-width: none; /* Для Firefox */
+    -ms-overflow-style: none; /* Для IE и Edge */
+}
+
+html::-webkit-scrollbar {
+    display: none; /* Для Chrome, Safari и Opera */
+}
+
 .scrollbar-hide::-webkit-scrollbar {
     display: none;
 }
@@ -7,4 +16,8 @@
 .scrollbar-hide {
     -ms-overflow-style: none;
     scrollbar-width: none;
+}
+
+audio::-webkit-media-controls-panel {
+    background-color: rgb(190, 195, 253);
 }

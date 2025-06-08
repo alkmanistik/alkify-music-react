@@ -32,16 +32,63 @@ export default function AlbumPage() {
         fetchAlbum();
     }, [albumId]);
 
+    const handleDeleteAlbum = async () => {
+        if (
+            !window.confirm(
+                "Are you sure you want to delete this album? This action cannot be undone!"
+            )
+        ) {
+            return;
+        }
+
+        setLoading(true);
+        try {
+            await apiClient.delete(`albums/${albumId}`);
+            navigate("/profile"); // Перенаправление после успешного удаления
+        } catch (err) {
+            setError("Failed to delete album. Please try again.");
+            console.error("Album deletion error:", err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleDeleteTrack = async (trackId: number) => {
+        if (!window.confirm("Are you sure you want to delete this track?")) {
+            return;
+        }
+
+        try {
+            await apiClient.delete(`/tracks/${trackId}`);
+            // Обновляем список треков после удаления
+            const updatedAlbum = { ...album };
+            updatedAlbum.tracks = updatedAlbum.tracks!.filter(
+                (t) => t.id !== trackId
+            );
+            setAlbum(updatedAlbum);
+        } catch (error) {
+            console.error("Failed to delete track:", error);
+            alert("Failed to delete track");
+        }
+    };
+
     const isOwner =
         currentUser?.managedArtists?.some(
             (a) => a.id === album?.artists[0].id
         ) || false;
 
-    if (loading) return <div className="text-center py-10">Loading...</div>;
+    if (loading)
+        return (
+            <div className="w-full h-screen bg-gradient-to-br from-blue-700 to-indigo-900 flex justify-center py-10">
+                <h1 className="text-6xl font-bold items-center text-white"></h1>
+            </div>
+        );
     if (!album)
         return (
-            <div className="text-center py-10">
-                {error || "Album not found"}
+            <div className="w-full h-screen bg-gradient-to-br from-blue-700 to-indigo-900 flex justify-center py-10">
+                <h1 className="text-6xl font-bold items-center text-white">
+                    {error || "Album not found"}
+                </h1>
             </div>
         );
 
@@ -102,14 +149,32 @@ export default function AlbumPage() {
                         </p>
 
                         {isOwner && (
-                            <button
-                                onClick={() =>
-                                    navigate(`/albums/${albumId}/tracks/create`)
-                                }
-                                className="mt-4 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
-                            >
-                                Add Track
-                            </button>
+                            <div>
+                                <button
+                                    onClick={() =>
+                                        navigate(
+                                            `/albums/${albumId}/tracks/create`
+                                        )
+                                    }
+                                    className="mt-4 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 mr-4 rounded"
+                                >
+                                    Add Track
+                                </button>
+                                <button
+                                    onClick={() =>
+                                        navigate(`/albums/edit/${albumId}`)
+                                    }
+                                    className="mt-4 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 mr-4 rounded"
+                                >
+                                    Edit Album
+                                </button>
+                                <button
+                                    onClick={handleDeleteAlbum}
+                                    className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded"
+                                >
+                                    Delete Artist
+                                </button>
+                            </div>
                         )}
                     </div>
                 </div>
@@ -127,14 +192,14 @@ export default function AlbumPage() {
                             {album.tracks.map((track, index) => (
                                 <div
                                     key={track.id}
-                                    className="flex items-center justify-between p-3 hover:bg-gray-700 rounded transition"
+                                    className="flex items-center justify-between p-3 hover:bg-gray-700 rounded transition group"
                                 >
-                                    <div className="flex items-center gap-4">
+                                    <div className="flex items-center gap-4 flex-1 min-w-0">
                                         <span className="text-gray-400 w-8 text-right">
                                             {index + 1}
                                         </span>
-                                        <div>
-                                            <h3 className="font-medium text-white">
+                                        <div className="flex-1 min-w-0">
+                                            <h3 className="font-medium text-white truncate">
                                                 {track.title}
                                                 {track.isExplicit && (
                                                     <span className="ml-2 text-xs bg-gray-600 px-1.5 py-0.5 rounded">
@@ -142,23 +207,71 @@ export default function AlbumPage() {
                                                     </span>
                                                 )}
                                             </h3>
-                                            {/* <p className="text-sm text-gray-400">
-                                                {formatDuration(
-                                                    track.durationSeconds
-                                                )}
-                                            </p> */}
                                         </div>
                                     </div>
 
-                                    <audio
-                                        src={
-                                            import.meta.env.VITE_API_URL +
-                                            "files/audios/" +
-                                            track.audioUrl
-                                        }
-                                        controls
-                                        className="w-64"
-                                    />
+                                    <div className="flex items-center gap-2">
+                                        <audio
+                                            src={`${
+                                                import.meta.env.VITE_API_URL
+                                            }files/audios/${track.audioUrl}`}
+                                            controls
+                                            className="w-64"
+                                        />
+
+                                        {isOwner && (
+                                            <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                <button
+                                                    onClick={() =>
+                                                        navigate(
+                                                            `/tracks/edit/${track.id}`
+                                                        )
+                                                    }
+                                                    className="p-1 text-blue-400 hover:text-blue-300"
+                                                    title="Edit track"
+                                                >
+                                                    <svg
+                                                        xmlns="http://www.w3.org/2000/svg"
+                                                        className="h-5 w-5"
+                                                        fill="none"
+                                                        viewBox="0 0 24 24"
+                                                        stroke="currentColor"
+                                                    >
+                                                        <path
+                                                            strokeLinecap="round"
+                                                            strokeLinejoin="round"
+                                                            strokeWidth={2}
+                                                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                                                        />
+                                                    </svg>
+                                                </button>
+                                                <button
+                                                    onClick={() =>
+                                                        handleDeleteTrack(
+                                                            track.id
+                                                        )
+                                                    }
+                                                    className="p-1 text-red-400 hover:text-red-300"
+                                                    title="Delete track"
+                                                >
+                                                    <svg
+                                                        xmlns="http://www.w3.org/2000/svg"
+                                                        className="h-5 w-5"
+                                                        fill="none"
+                                                        viewBox="0 0 24 24"
+                                                        stroke="currentColor"
+                                                    >
+                                                        <path
+                                                            strokeLinecap="round"
+                                                            strokeLinejoin="round"
+                                                            strokeWidth={2}
+                                                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                                                        />
+                                                    </svg>
+                                                </button>
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
                             ))}
                         </div>
@@ -167,11 +280,4 @@ export default function AlbumPage() {
             </div>
         </div>
     );
-}
-
-// Вспомогательная функция для форматирования длительности
-function formatDuration(seconds: number): string {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins}:${secs < 10 ? "0" : ""}${secs}`;
 }

@@ -92,7 +92,7 @@ export default function AlbumForm() {
                 headers: { "Content-Type": "multipart/form-data" },
             });
 
-            navigate(`/artists/${artistId}`);
+            navigate(artistId ? `/artists/${artistId}` : `/albums/${albumId}`);
         } catch (error) {
             setError("Failed to save album");
         } finally {

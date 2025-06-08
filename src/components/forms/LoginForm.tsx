@@ -55,6 +55,7 @@ export default function LoginForm({
                             <label className="block text-blue-400">Email</label>
                             <input
                                 type="email"
+                                autoComplete="email"
                                 className="w-full px-4 py-2 bg-blue-200 border border-blue-300 rounded-md text-black focus:outline-none focus:ring-2 focus:ring-blue-300"
                                 value={formData.email}
                                 onChange={(e) =>
@@ -73,6 +74,7 @@ export default function LoginForm({
                             </label>
                             <input
                                 type="password"
+                                autoComplete="password"
                                 className="w-full px-4 py-2 bg-blue-200 border border-blue-300 rounded-md text-black focus:outline-none focus:ring-2 focus:ring-blue-300"
                                 value={formData.password}
                                 onChange={(e) =>

@@ -41,16 +41,48 @@ export default function ArtistPage() {
     }, [artistId]);
 
     const handleEditArtist = () => {
-        navigate(`/artists/create/${artistId}`);
+        navigate(`/artists/edit/${artistId}`);
     };
 
     const handleCreateAlbum = () => {
         navigate(`/artists/${artistId}/albums/create`);
     };
 
-    if (loading) return <div className="text-center py-10">Loading...</div>;
+    const handleDeleteArtist = async () => {
+        if (
+            !window.confirm(
+                "Are you sure you want to delete this artist? This action cannot be undone!"
+            )
+        ) {
+            return;
+        }
+
+        setLoading(true);
+        try {
+            await apiClient.delete(`artists/${artistId}`);
+            navigate("/profile"); // Перенаправление после успешного удаления
+        } catch (err) {
+            setError("Failed to delete artist. Please try again.");
+            console.error("Artist deletion error:", err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    if (loading)
+        return (
+            <div className="w-full h-screen bg-gradient-to-br from-blue-700 to-indigo-900 flex justify-center py-10">
+                <h1 className="text-6xl font-bold items-center text-white"></h1>
+            </div>
+        );
     if (!artist)
-        return <div className="text-center py-10">Artist not found</div>;
+        return (
+            <div className="w-full h-screen bg-gradient-to-br from-blue-700 to-indigo-900 flex justify-center py-10">
+                <h1 className="text-6xl font-bold items-center text-white">
+                    Artist not found
+                </h1>
+            </div>
+        );
 
     return (
         <div className="bg-gradient-to-br from-blue-700 to-indigo-900 min-h-screen">
@@ -84,12 +116,20 @@ export default function ArtistPage() {
                                 </div>
 
                                 {isOwner && (
-                                    <button
-                                        onClick={handleEditArtist}
-                                        className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
-                                    >
-                                        Edit Artist
-                                    </button>
+                                    <div>
+                                        <button
+                                            onClick={handleEditArtist}
+                                            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 mr-4 rounded"
+                                        >
+                                            Edit Artist
+                                        </button>
+                                        <button
+                                            onClick={handleDeleteArtist}
+                                            className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded"
+                                        >
+                                            Delete Artist
+                                        </button>
+                                    </div>
                                 )}
                             </div>
 
@@ -123,7 +163,7 @@ export default function ArtistPage() {
                             {artist.albums.map((album) => (
                                 <div
                                     key={album.id}
-                                    className="bg-gray-800 w-64 rounded-lg overflow-hidden hover:bg-gray-700 transition cursor-pointer"
+                                    className="bg-gray-800 rounded-lg overflow-hidden hover:bg-gray-700 transition cursor-pointer"
                                     onClick={() =>
                                         navigate(`/albums/${album.id}`)
                                     }
@@ -176,10 +216,10 @@ export default function ArtistPage() {
                             {artist.tracks.map((track, index) => (
                                 <div
                                     key={track.id}
-                                    className="flex items-center p-3 hover:bg-gray-700 transition border-b border-gray-700 last:border-0 cursor-pointer"
-                                    onClick={() =>
-                                        navigate(`/tracks/${track.id}`)
-                                    }
+                                    className="flex items-center p-3 hover:bg-gray-700 transition border-b border-gray-700 last:border-0"
+                                    // onClick={() =>
+                                    //     navigate(`/tracks/${track.id}`)
+                                    // }
                                 >
                                     <div className="text-gray-400 w-8 text-center">
                                         {index + 1}
@@ -192,9 +232,6 @@ export default function ArtistPage() {
                                             {/* {track.albums?.title || 'Single'} */}
                                         </p>
                                     </div>
-                                    {/* <div className="text-gray-400 text-sm">
-                                        {formatDuration(track.durationSeconds)}
-                                    </div> */}
                                     <audio
                                         src={
                                             import.meta.env.VITE_API_URL +
@@ -216,11 +253,4 @@ export default function ArtistPage() {
             </div>
         </div>
     );
-}
-
-// Вспомогательная функция для форматирования времени
-function formatDuration(seconds: number): string {
-    const mins = Math.floor(seconds / 60);
-    const secs = Math.floor(seconds % 60);
-    return `${mins}:${secs < 10 ? "0" : ""}${secs}`;
 }

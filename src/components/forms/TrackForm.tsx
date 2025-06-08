@@ -1,12 +1,18 @@
-import { useState, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import type { TrackRequest } from "../../models/requests/TrackRequest";
+import type { TrackDTO } from "../../models/dto/TrackDTO";
 import apiClient from "../../api/client";
 
 export default function TrackForm() {
-    const { albumId } = useParams<{ albumId: string }>();
+    const { albumId, trackId } = useParams<{
+        albumId: string;
+        trackId?: string;
+    }>();
     const navigate = useNavigate();
     const audioInputRef = useRef<HTMLInputElement>(null);
+    const [isEditMode, setIsEditMode] = useState(false);
+    const [trackDTO, setTrackDTO] = useState<TrackDTO>();
 
     const [formData, setFormData] = useState<TrackRequest>({
         title: "",
@@ -14,8 +20,34 @@ export default function TrackForm() {
         isExplicit: false,
     });
     const [audioFile, setAudioFile] = useState<File | null>(null);
+    const [existingAudioUrl, setExistingAudioUrl] = useState("");
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
+
+    // Загрузка данных трека при редактировании
+    useEffect(() => {
+        if (trackId) {
+            setIsEditMode(true);
+            fetchTrack();
+        }
+    }, [trackId]);
+
+    const fetchTrack = async () => {
+        try {
+            setLoading(true);
+            const response = await apiClient.get<TrackDTO>(`tracks/${trackId}`);
+            setTrackDTO(response.data);
+            const { title, genre, isExplicit, audioUrl } = response.data;
+            setFormData({ title, genre: genre || "", isExplicit });
+            setExistingAudioUrl(
+                `${import.meta.env.VITE_API_URL}files/audios/${audioUrl}`
+            );
+        } catch (err) {
+            setError("Failed to load track data");
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value, type, checked } = e.target;
@@ -34,7 +66,8 @@ export default function TrackForm() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        if (!audioFile) {
+        // В режиме редактирования аудиофайл не обязателен
+        if (!isEditMode && !audioFile) {
             setError("Please select an audio file");
             return;
         }
@@ -44,8 +77,6 @@ export default function TrackForm() {
 
         try {
             const formDataToSend = new FormData();
-
-            // Добавляем JSON с данными трека
             formDataToSend.append(
                 "request",
                 new Blob([JSON.stringify(formData)], {
@@ -53,19 +84,41 @@ export default function TrackForm() {
                 })
             );
 
-            // Добавляем аудиофайл
-            formDataToSend.append("audio", audioFile);
+            // Добавляем аудиофайл только если он был выбран
+            if (audioFile) {
+                formDataToSend.append("audio", audioFile);
+            }
 
-            await apiClient.post(`/tracks/${albumId}`, formDataToSend, {
-                headers: {
-                    "Content-Type": "multipart/form-data",
-                },
-            });
+            if (isEditMode && trackId) {
+                await apiClient.put(`/tracks/${trackId}`, formDataToSend, {
+                    headers: {
+                        "Content-Type": "multipart/form-data",
+                    },
+                });
+            } else {
+                await apiClient.post(
+                    `/albums/${albumId}/tracks`,
+                    formDataToSend,
+                    {
+                        headers: {
+                            "Content-Type": "multipart/form-data",
+                        },
+                    }
+                );
+            }
 
-            navigate(`../albums/${albumId}`);
+            if (isEditMode) {
+                navigate(`/albums/${trackDTO?.album.id}`);
+            } else {
+                navigate(`/albums/${albumId}`);
+            }
         } catch (err) {
-            setError("Failed to create track. Please try again.");
-            console.error("Error creating track:", err);
+            setError(
+                isEditMode
+                    ? "Failed to update track. Please try again."
+                    : "Failed to create track. Please try again."
+            );
+            console.error("Error:", err);
         } finally {
             setLoading(false);
         }
@@ -77,10 +130,12 @@ export default function TrackForm() {
                 <div className="bg-white rounded-3xl shadow-xl overflow-hidden">
                     <div className="bg-gradient-to-r from-blue-600 to-indigo-700 px-8 py-6">
                         <h1 className="text-3xl font-extrabold text-white text-center">
-                            Add New Track
+                            {isEditMode ? "Edit Track" : "Add New Track"}
                         </h1>
                         <p className="text-blue-100 text-center mt-2">
-                            Fill in the track details
+                            {isEditMode
+                                ? "Update track details"
+                                : "Fill in the track details"}
                         </p>
                     </div>
 
@@ -138,7 +193,7 @@ export default function TrackForm() {
 
                             <div>
                                 <label className="block text-gray-700 font-medium mb-2">
-                                    Audio File* (MP3, WAV)
+                                    Audio File{!isEditMode && "*"}
                                 </label>
                                 <input
                                     type="file"
@@ -151,12 +206,29 @@ export default function TrackForm() {
                                     file:text-sm file:font-semibold
                                     file:bg-blue-50 file:text-blue-700
                                     hover:file:bg-blue-100"
-                                    required
+                                    required={!isEditMode}
                                 />
-                                {audioFile && (
+                                {audioFile ? (
                                     <p className="mt-2 text-sm text-gray-500">
                                         Selected: {audioFile.name}
                                     </p>
+                                ) : (
+                                    isEditMode &&
+                                    existingAudioUrl && (
+                                        <div>
+                                            <p className="mt-2 text-sm text-gray-500">
+                                                Current file:{" "}
+                                                {existingAudioUrl
+                                                    .split("/")
+                                                    .pop()}
+                                            </p>
+                                            <audio
+                                                src={existingAudioUrl}
+                                                controls
+                                                className="w-64"
+                                            />
+                                        </div>
+                                    )
                                 )}
                             </div>
 
@@ -195,8 +267,12 @@ export default function TrackForm() {
                                                     d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                                                 ></path>
                                             </svg>
-                                            Creating...
+                                            {isEditMode
+                                                ? "Updating..."
+                                                : "Creating..."}
                                         </span>
+                                    ) : isEditMode ? (
+                                        "Update Track"
                                     ) : (
                                         "Create Track"
                                     )}

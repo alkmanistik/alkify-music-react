@@ -59,6 +59,7 @@ export default function RegisterForm({
                             </label>
                             <input
                                 type="text"
+                                name="username"
                                 className="w-full px-4 py-2 bg-blue-200 border border-blue-300 rounded-md text-black focus:outline-none focus:ring-2 focus:ring-blue-300"
                                 value={formData.username}
                                 onChange={(e) =>
@@ -75,7 +76,10 @@ export default function RegisterForm({
                         <div className="space-y-2">
                             <label className="block text-blue-400">Email</label>
                             <input
+                                id="email"
                                 type="email"
+                                name="email"
+                                autoComplete="email"
                                 className="w-full px-4 py-2 bg-blue-200 border border-blue-300 rounded-md text-black focus:outline-none focus:ring-2 focus:ring-blue-300"
                                 value={formData.email}
                                 onChange={(e) =>
@@ -93,7 +97,10 @@ export default function RegisterForm({
                                 Password
                             </label>
                             <input
+                                id="password"
                                 type="password"
+                                name="password"
+                                autoComplete="new-password"
                                 className="w-full px-4 py-2 bg-blue-200 border border-blue-300 rounded-md text-black focus:outline-none focus:ring-2 focus:ring-blue-300"
                                 value={formData.password}
                                 onChange={(e) =>

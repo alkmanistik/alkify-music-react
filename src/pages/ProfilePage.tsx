@@ -17,6 +17,30 @@ export default function ProfilePage() {
     const [error, setError] = useState("");
     const navigate = useNavigate();
 
+    const handleDeleteAccount = async () => {
+        if (
+            !window.confirm(
+                "Are you sure you want to delete your account? This action cannot be undone!"
+            )
+        ) {
+            return;
+        }
+
+        setLoading(true);
+        try {
+            await apiClient.delete("users/me");
+            // Выход и перенаправление после удаления
+            setUser(null);
+            localStorage.removeItem("jwt_token");
+            window.location.href = "/";
+        } catch (err) {
+            setError("Failed to delete account. Please try again.");
+            console.error("Account deletion error:", err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
     useEffect(() => {
         const fetchUser = async () => {
             try {
@@ -63,8 +87,18 @@ export default function ProfilePage() {
         navigate("/artists/create");
     };
 
-    if (loading) return <div className="text-center py-10">Loading...</div>;
-    if (!user) return <div className="text-center py-10">User not found</div>;
+    if (loading)
+        return (
+            <div className="w-full h-screen bg-gradient-to-br from-blue-700 to-indigo-900 flex justify-center py-10">
+                <h1 className="text-6xl font-bold items-center text-white"></h1>
+            </div>
+        );
+    if (!user) return;
+    <div className="w-full h-screen bg-gradient-to-br from-blue-700 to-indigo-900 flex justify-center py-10">
+        <h1 className="text-6xl font-bold items-center text-white">
+            User not found
+        </h1>
+    </div>;
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-blue-700 to-indigo-900">
@@ -163,9 +197,18 @@ export default function ProfilePage() {
 
                                         <button
                                             onClick={() => setEditing(true)}
-                                            className="mt-4 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded"
+                                            className="mt-4 bg-indigo-600 hover:bg-indigo-700 text-white mb-4 px-4 py-2 rounded"
                                         >
                                             Edit Profile
+                                        </button>
+                                        <button
+                                            onClick={handleDeleteAccount}
+                                            disabled={loading}
+                                            className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition disabled:opacity-50"
+                                        >
+                                            {loading
+                                                ? "Deleting..."
+                                                : "Delete Account"}
                                         </button>
                                     </>
                                 )}
